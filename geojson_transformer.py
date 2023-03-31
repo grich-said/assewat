@@ -43,7 +43,7 @@ class geojson_transformer():
 
                 # Write the NDVI image to a GeoTIFF file using rasterio
                 with rasterio.open(output_file, "w", driver="GTiff", height=ndvi.shape[0], width=ndvi.shape[1], count=1,
-                                   dtype=np.float32, nodata=-9999, crs="+init=epsg:4326", **meta,
+                                   dtype=np.float32, nodata=-9999, crs="+init=epsg:32629", **meta,
                                    compress='lzw') as dst:
                     dst.write(ndvi, 1)
                 dict_["ndvi"].append(

@@ -107,7 +107,6 @@ class GeoDownloader():
                 bands_dict["geometry"]=image.geometry().getInfo()
                 bands_dict["date"] = self.get_date_from_image_id(image_id)
                 metadata=image.getInfo()["properties"]
-                metadata.pop("system:footprint")
                 bands_dict["metadata"]=metadata
                 for band in self.bands:
                     if band =="B4":
@@ -117,10 +116,15 @@ class GeoDownloader():
                         # Get the affine transformation matrix
                         transform = projection.getInfo()['transform']
                         bands_dict["metadata"]["transform"]=transform
+                        bbox = band2.geometry().bounds().getInfo()['coordinates'][0]
+
+                        # Print the CRS
                     # Print the transformation matrix
                     self.downloader.download(img=image, band=band)
+
                     bands_dict[band] = self.downloader.array
                 feature_dict["images"].append(bands_dict)
+
             zones_images.append(feature_dict)
             return zones_images
 
