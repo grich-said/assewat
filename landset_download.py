@@ -7,8 +7,8 @@ import sys
 import datetime
 
 
-class GeoDownloader_sentinel():
-    def __init__(self, is_verbose=False, selected_regions=[], bands=['B4', 'B8'], startDate="", endDate=""):
+class GeoDownloader_landset():
+    def __init__(self, is_verbose=False, selected_regions=[], bands=['SR_B4', 'SR_B5'], startDate="", endDate=""):
         # configuring log
         if (is_verbose):
             self.log_level = logging.DEBUG
@@ -26,7 +26,7 @@ class GeoDownloader_sentinel():
 
         self.log.debug("test")
         self.selected_regions = selected_regions
-        self.product_id = "COPERNICUS/S2_SR"
+        self.product_id = 'LANDSAT/LC08/C02/T1_L2'
         self.startDate = startDate
         self.endDate = endDate
         self.isAuthenticate = True;
@@ -71,18 +71,17 @@ class GeoDownloader_sentinel():
 
     def get_date_from_image_id(self, image_id):
         # Extract the date substring from the image ID
-        date_str = image_id.split('/')[2][:8]
-
-        # Convert the date string to a Python datetime object
-        date = datetime.datetime.strptime(date_str, '%Y%m%d')
-
-        # Format the date as "YYYY-MM-DD"
-        formatted_date = date.strftime('%Y-%m-%d')
+        if(self.product_id=='LANDSAT/LC08/C02/T1_L2'):
+            date_str = image_id.split("_")[-1]
+            date_obj = datetime.datetime.strptime(date_str, '%Y%m%d')
+            formatted_date = date_obj.strftime('%Y-%m-%d')
 
         # Return the formatted date as a string
         return formatted_date
 
-    def downalodImages(self):
+
+    def downalodImages_landset(self):
+        cloud_thresh=20
         zones_images = []
         for feature in tqdm(self.redyToDownlaodList):
             feature_dict = {}
@@ -94,16 +93,17 @@ class GeoDownloader_sentinel():
             geometry = ee.Geometry(feature['geometry'])
             # Load the Landsat images for the defined date range and geometry
 
-            collection = ee.ImageCollection('COPERNICUS/S2_SR') \
-                .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))\
+            collection = ee.ImageCollection(self.product_id) \
                 .filterDate(self.startDate, self.endDate) \
-                .filterBounds(geometry)
-            collection = collection.map(self.mask_clouds)
+                .filterBounds(geometry)\
+                .filterMetadata('CLOUD_COVER', 'less_than', cloud_thresh)
+            collection = collection.map(self.maskClouds)
             print("----------------------------------->",len(collection.getInfo()['features']))
             for image in collection.getInfo()['features']:
                 bands_dict = {}
                 image_id = image['id']
                 image = ee.Image(image_id)
+                cloud_cover = image.get('CLOUD_COVER').getInfo()
                 bands_dict['date'] = ee.Date(image.date())
                 bands_dict['id'] = image_id
                 bands_dict["geometry"]=image.geometry().getInfo()
@@ -111,7 +111,7 @@ class GeoDownloader_sentinel():
                 metadata=image.getInfo()["properties"]
                 bands_dict["metadata"]=metadata
                 for band in self.bands:
-                    if band =="B4":
+                    if band =="SR_B4":
                         band2 = image.select(band)
                         # Get the projection information
                         projection = band2.projection()
@@ -122,24 +122,20 @@ class GeoDownloader_sentinel():
                         # Print the CRS
                     # Print the transformation matrix
                     self.downloader.download(img=image, band=band)
-
                     bands_dict[band] = self.downloader.array
                 feature_dict["images"].append(bands_dict)
+
             zones_images.append(feature_dict)
         return zones_images
 
-    def mask_clouds(self,img):
-        # Get the cloud probability layer
-        cloud_prob = img.select('MSK_CLDPRB')
-
-        # Set the threshold for cloud probability
-        threshold = 50
-
-        # Mask pixels with cloud probability greater than the threshold
-        img = img.updateMask(cloud_prob.lt(threshold))
-
-        # Return the masked image
-        return img
+    def maskClouds(self,image):
+        # Extract the QA band
+        qa = image.select('QA_PIXEL')
+        # Bits 2 and 3 indicate clouds and cloud shadows, respectively
+        cloudMask = qa.bitwiseAnd(1 << 2).neq(0) \
+            .Or(qa.bitwiseAnd(1 << 3).neq(0))
+        # Apply the mask to the image and return it
+        return image.updateMask(cloudMask.Not())
 
     def runAll(self):
         if not self.isAuthenticate:
@@ -148,4 +144,4 @@ class GeoDownloader_sentinel():
             self.initialaze()
         self.getRegionSublist()
 
-        return self.downalodImages()
+        return self.downalodImages_landset()
