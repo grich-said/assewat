@@ -47,7 +47,7 @@ class geojson_transformer_landser():
                                    compress='lzw') as dst:
                     dst.write(ndvi, 1)
                 dict_["ndvi"].append(
-                    {"date": image_dict["date"], "geometry": image_dict["geometry"], "path": output_file,"product":"LANDSAT",
+                    {"id":image_dict["id"],"date": image_dict["date"], "geometry": image_dict["geometry"], "path": output_file,"product":"LANDSAT",
                      "created_at": datetime.datetime.now().strftime('%Y-%m-%d %H:%M')})
             dict_.pop("images")
         return self.dataset

@@ -95,11 +95,10 @@ class GeoDownloader_sentinel():
             # Load the Landsat images for the defined date range and geometry
 
             collection = ee.ImageCollection('COPERNICUS/S2_SR') \
-                .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))\
+                .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 0))\
                 .filterDate(self.startDate, self.endDate) \
                 .filterBounds(geometry)
             collection = collection.map(self.mask_clouds)
-            print("----------------------------------->",len(collection.getInfo()['features']))
             for image in collection.getInfo()['features']:
                 bands_dict = {}
                 image_id = image['id']

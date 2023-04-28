@@ -9,7 +9,7 @@ from landset_transformer import geojson_transformer_landser
 #smothing
 if __name__ == '__main__':
     loader_ndvi=GeoJsonLoaderNdvi()
-    years_list=[2020,2021,2023]
+    years_list=[2020,2021]
 
     for year in years_list:
         # Loop over the months

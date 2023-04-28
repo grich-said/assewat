@@ -1,0 +1,11 @@
+LICENSE
+README.md
+setup.py
+src/geeS2Downloader.egg-info/PKG-INFO
+src/geeS2Downloader.egg-info/SOURCES.txt
+src/geeS2Downloader.egg-info/dependency_links.txt
+src/geeS2Downloader.egg-info/requires.txt
+src/geeS2Downloader.egg-info/top_level.txt
+src/geeS2downloader/__init__.py
+src/geeS2downloader/common.py
+src/geeS2downloader/gee.py

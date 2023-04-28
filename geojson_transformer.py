@@ -47,7 +47,7 @@ class geojson_transformer_sentilen():
                                    compress='lzw') as dst:
                     dst.write(ndvi, 1)
                 dict_["ndvi"].append(
-                    {"date": image_dict["date"], "geometry": image_dict["geometry"], "path": output_file,"product":"S2_SR",
+                    {"id":image_dict["id"],"date": image_dict["date"], "geometry": image_dict["geometry"], "path": output_file,"product":"S2_SR",
                      "created_at": datetime.datetime.now().strftime('%Y-%m-%d %H:%M')})
             dict_.pop("images")
         return self.dataset

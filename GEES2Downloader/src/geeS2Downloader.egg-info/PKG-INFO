@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: geeS2Downloader
+Version: 0.0.1
+Home-page: https://github.com/cordmaur/GEES2Downloader
+Author: Maurício Cordeiro
+Author-email: cordmaur@gmail.com
+Provides-Extra: tests
+License-File: LICENSE

@@ -79,20 +79,17 @@ class GeoDownloader_landset():
         # Return the formatted date as a string
         return formatted_date
 
-
     def downalodImages_landset(self):
-        cloud_thresh=20
+        cloud_thresh=2
         zones_images = []
         for feature in tqdm(self.redyToDownlaodList):
             feature_dict = {}
             feature_dict["images"] = []
             feature_dict["zone"] = feature['properties']['Nom_Provin']
             feature_dict["geometry"] = feature['geometry']
-
             # Get the geometry of the feature
             geometry = ee.Geometry(feature['geometry'])
             # Load the Landsat images for the defined date range and geometry
-
             collection = ee.ImageCollection(self.product_id) \
                 .filterDate(self.startDate, self.endDate) \
                 .filterBounds(geometry)\
